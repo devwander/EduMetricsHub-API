@@ -4,23 +4,34 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
+import { existingUserError } from './errors/existingUser.error';
 
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const data: Prisma.UserCreateInput = {
-      ...createUserDto,
-      password: await bcrypt.hash(createUserDto.password, 10),
-    };
+    const { email, password } = createUserDto;
 
-    const createdUser = await this.prisma.user.create({ data });
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
-    return {
-      ...createdUser,
-      password: undefined,
-    };
+    if (!user) {
+      const data: Prisma.UserCreateInput = {
+        ...createUserDto,
+        password: await bcrypt.hash(password, 10),
+      };
+
+      const createdUser = await this.prisma.user.create({ data });
+
+      return {
+        ...createdUser,
+        password: undefined,
+      };
+    }
+
+    throw new existingUserError(
+      'The email address provided is already in use.',
+    );
   }
 
   findByEmail(email: string) {
