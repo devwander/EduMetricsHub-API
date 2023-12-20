@@ -10,8 +10,13 @@ export class UniversityController {
     return this.universityService.getHello();
   }
 
-  @Get('/disciplineFailures')
+  @Get('/discipline/failures')
   disciplineFailures() {
     return this.universityService.disciplineFailures();
+  }
+
+  @Get('/student/failures')
+  studentFailures() {
+    return this.universityService.studentFailures();
   }
 }

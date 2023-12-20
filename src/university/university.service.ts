@@ -20,4 +20,20 @@ export class UniversityService {
       disciplina d ON h.id_disciplina = d.id
     GROUP BY d.nome;`;
   }
+
+  async studentFailures() {
+    return await this.prisma.$queryRaw`
+    SELECT
+      a.nome AS "name",
+      CAST(COUNT(CASE WHEN h.status IN (2, 3, 4) THEN 1 END) AS INT) AS "num_failures"
+    FROM
+      historico h
+    JOIN
+      aluno a ON h.id_aluno = a.id
+    GROUP BY a.nome;`;
+  }
+
+  findStudentById(id: number) {
+    return this.prisma.aluno.findUnique({ where: { id } });
+  }
 }
