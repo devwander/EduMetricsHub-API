@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { UniversityService } from './university.service';
 
 @Controller('university')
@@ -18,5 +18,15 @@ export class UniversityController {
   @Get('/student/failures')
   studentFailures() {
     return this.universityService.studentFailures();
+  }
+
+  @Get('/student/:id')
+  student(@Param('id') id: number) {
+    return this.universityService.findStudentById(id);
+  }
+
+  @Get('/student/progress/:id')
+  studentDiscipline(@Param('id') id: number) {
+    return this.universityService.studentProgress(id);
   }
 }

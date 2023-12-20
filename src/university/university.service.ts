@@ -36,4 +36,24 @@ export class UniversityService {
   findStudentById(id: number) {
     return this.prisma.aluno.findUnique({ where: { id } });
   }
+
+  async studentProgress(id: number) {
+    return await this.prisma.$queryRaw`
+    SELECT
+      a.nome AS "name",
+      CAST(COUNT(CASE WHEN h.status IN (1, 2) THEN 1 END) AS INT) AS "num_studied",
+      CAST(COUNT(CASE WHEN h.status IN (5) THEN 1 END) AS INT) AS "num_studying",
+      CAST(COUNT(CASE WHEN h.status IN (0, 3, 4, 6, 7) AND d.tipo = 1 THEN 1 END) AS INT) AS "num_missing_mandatory",
+      CAST(COUNT(CASE WHEN h.status IN (0, 3, 4, 6, 7) AND d.tipo = 2 THEN 1 END) AS INT) AS "num_missing_elective"
+    FROM
+      historico h
+    JOIN
+      aluno a ON h.id_aluno = a.id
+    JOIN
+      disciplina d ON h.id_disciplina = d.id
+    WHERE
+      a.id = ${id}
+    GROUP BY a.nome;
+`;
+  }
 }
