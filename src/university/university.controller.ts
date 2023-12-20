@@ -15,14 +15,19 @@ export class UniversityController {
     return this.universityService.findDisciplineById(id);
   }
 
-  @Get('/discipline/failures')
+  @Get('/discipline/data/failures')
   disciplineFailures() {
     return this.universityService.disciplineFailures();
   }
 
-  @Get('/student/failures')
-  studentFailures() {
-    return this.universityService.studentFailures();
+  @Get('/discipline/data/progress')
+  disciplineProgressAll() {
+    return this.universityService.disciplineProgressAll();
+  }
+
+  @Get('/discipline/data/progress/:id')
+  disciplineProgress(@Param('id') id: number) {
+    return this.universityService.disciplineProgress(id);
   }
 
   @Get('/student/:id')
@@ -30,8 +35,18 @@ export class UniversityController {
     return this.universityService.findStudentById(id);
   }
 
-  @Get('/student/progress/:id')
+  @Get('/student/data/failures')
+  studentFailures() {
+    return this.universityService.studentFailures();
+  }
+
+  @Get('/student/data/progress/:id')
   studentDiscipline(@Param('id') id: number) {
     return this.universityService.studentProgress(id);
+  }
+
+  @Get('/student/data/progress')
+  studentDisciplineAll() {
+    return this.universityService.studentProgressAll();
   }
 }
