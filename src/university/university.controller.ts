@@ -10,6 +10,11 @@ export class UniversityController {
     return this.universityService.getHello();
   }
 
+  @Get('/discipline/:id')
+  discipline(@Param('id') id: number) {
+    return this.universityService.findDisciplineById(id);
+  }
+
   @Get('/discipline/failures')
   disciplineFailures() {
     return this.universityService.disciplineFailures();

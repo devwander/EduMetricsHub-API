@@ -33,8 +33,12 @@ export class UniversityService {
     GROUP BY a.nome;`;
   }
 
-  findStudentById(id: number) {
-    return this.prisma.aluno.findUnique({ where: { id } });
+  async findStudentById(id: number) {
+    return await this.prisma.aluno.findUnique({ where: { id } });
+  }
+
+  async findDisciplineById(id: number) {
+    return this.prisma.disciplina.findUnique({ where: { id } });
   }
 
   async studentProgress(id: number) {
