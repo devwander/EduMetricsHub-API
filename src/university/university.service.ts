@@ -11,8 +11,8 @@ export class UniversityService {
 
   async disciplines(take: number, skip: number) {
     return await this.prisma.disciplina.findMany({
-      take: take | 10,
-      skip: skip | 0,
+      take: take || 10,
+      skip: skip || 0,
       orderBy: {
         nome: 'asc',
       },
@@ -29,8 +29,8 @@ export class UniversityService {
           },
         },
       },
-      take: take | 10,
-      skip: skip | 0,
+      take: take || 10,
+      skip: skip || 0,
       orderBy: {
         nome: 'asc',
       },
@@ -56,7 +56,7 @@ export class UniversityService {
     return this.prisma.disciplina.findUnique({ where: { id } });
   }
 
-  async disciplineProgress(id: number) {
+  async disciplineProgressById(id: number) {
     const discipline = await this.prisma.disciplina.findUnique({
       where: { id: id },
       select: {
@@ -114,8 +114,8 @@ export class UniversityService {
           },
         },
       },
-      take: take | 10,
-      skip: skip | 0,
+      take: take || 10,
+      skip: skip || 0,
       orderBy: {
         nome: 'asc',
       },
