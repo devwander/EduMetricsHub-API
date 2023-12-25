@@ -36,11 +36,11 @@ export class UniversityService {
       },
     });
 
-    const results = disciplines.map((disciplina) => {
-      const { nome, historico } = disciplina;
+    const results = disciplines.map((discipline) => {
+      const { nome, historico } = discipline;
 
-      const numFailures = historico.reduce((count, historico) => {
-        return count + ([2, 3, 4].includes(historico.status) ? 1 : 0);
+      const numFailures = historico.reduce((count, historic) => {
+        return count + ([2, 3, 4].includes(historic.status) ? 1 : 0);
       }, 0);
 
       return {
@@ -160,61 +160,166 @@ export class UniversityService {
     return results;
   }
 
-  async students() {
-    return await this.prisma.aluno.findMany();
+  async students(take: number, skip: number) {
+    return await this.prisma.aluno.findMany({
+      take: take || 10,
+      skip: skip || 0,
+      orderBy: {
+        nome: 'asc',
+      },
+    });
   }
 
-  async studentProgress(id: number) {
-    return await this.prisma.$queryRaw`
-    SELECT
-      a.nome AS "name",
-      CAST(COUNT(CASE WHEN h.status IN (1, 2) THEN 1 END) AS INT) AS "num_studied",
-      CAST(COUNT(CASE WHEN h.status IN (5) THEN 1 END) AS INT) AS "num_studying",
-      CAST(COUNT(CASE WHEN h.status IN (0, 3, 4, 6, 7) AND d.tipo = 1 THEN 1 END) AS INT) AS "num_missing_mandatory",
-      CAST(COUNT(CASE WHEN h.status IN (0, 3, 4, 6, 7) AND d.tipo = 2 THEN 1 END) AS INT) AS "num_missing_elective"
-    FROM
-      historico h
-    JOIN
-      aluno a ON h.id_aluno = a.id
-    JOIN
-      disciplina d ON h.id_disciplina = d.id
-    WHERE
-      a.id = ${id}
-    GROUP BY a.nome;
-`;
-  }
+  async studentFailures(take: number, skip: number) {
+    const students = await this.prisma.aluno.findMany({
+      select: {
+        nome: true,
+        historico: {
+          select: {
+            status: true,
+          },
+        },
+      },
+      take: take || 10,
+      skip: skip || 0,
+      orderBy: {
+        nome: 'asc',
+      },
+    });
 
-  async studentProgressAll() {
-    return await this.prisma.$queryRaw`
-    SELECT
-      a.nome AS "name",
-      CAST(COUNT(CASE WHEN h.status IN (1, 2) THEN 1 END) AS INT) AS "num_studied",
-      CAST(COUNT(CASE WHEN h.status IN (5) THEN 1 END) AS INT) AS "num_studying",
-      CAST(COUNT(CASE WHEN h.status IN (0, 3, 4, 6, 7) AND d.tipo = 1 THEN 1 END) AS INT) AS "num_missing_mandatory",
-      CAST(COUNT(CASE WHEN h.status IN (0, 3, 4, 6, 7) AND d.tipo = 2 THEN 1 END) AS INT) AS "num_missing_elective"
-    FROM
-      historico h
-    JOIN
-      aluno a ON h.id_aluno = a.id
-    JOIN
-      disciplina d ON h.id_disciplina = d.id
-    GROUP BY a.nome;
-`;
-  }
+    const results = students.map((student) => {
+      const { nome, historico } = student;
 
-  async studentFailures() {
-    return await this.prisma.$queryRaw`
-    SELECT
-      a.nome AS "name",
-      CAST(COUNT(CASE WHEN h.status IN (2, 3, 4) THEN 1 END) AS INT) AS "num_failures"
-    FROM
-      historico h
-    JOIN
-      aluno a ON h.id_aluno = a.id
-    GROUP BY a.nome;`;
+      const numFailures = historico.reduce((count, historic) => {
+        return count + ([2, 3, 4].includes(historic.status) ? 1 : 0);
+      }, 0);
+
+      return {
+        name: nome,
+        num_failures: numFailures,
+      };
+    });
+
+    return results;
   }
 
   async findStudentById(id: number) {
     return await this.prisma.aluno.findUnique({ where: { id } });
+  }
+
+  async studentProgressById(id: number) {
+    const student = await this.prisma.aluno.findUnique({
+      where: { id: id },
+      select: {
+        nome: true,
+        historico: {
+          select: {
+            status: true,
+            disciplina: {
+              select: {
+                tipo: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const { nome, historico } = student;
+
+    const results = {
+      name: nome,
+      num_studied: 0,
+      num_studying: 0,
+      num_missing_mandatory: 0,
+      num_missing_elective: 0,
+    };
+
+    for (const h of historico) {
+      switch (h.status) {
+        case 1:
+        case 2:
+          results.num_studied++;
+          break;
+        case 5:
+          results.num_studying++;
+          break;
+        case 0:
+        case 3:
+        case 4:
+        case 6:
+        case 7:
+          results.num_missing_mandatory += h.disciplina.tipo === 1 ? 1 : 0;
+          results.num_missing_elective += h.disciplina.tipo === 2 ? 1 : 0;
+          break;
+      }
+    }
+
+    return results;
+  }
+
+  async studentProgressAll(take: number, skip: number) {
+    const students = await this.prisma.aluno.findMany({
+      select: {
+        nome: true,
+        historico: {
+          select: {
+            status: true,
+            disciplina: {
+              select: {
+                tipo: true,
+              },
+            },
+          },
+        },
+      },
+      take: take || 10,
+      skip: skip || 0,
+      orderBy: {
+        nome: 'asc',
+      },
+    });
+
+    console.log(students);
+
+    const results = students.map((student) => {
+      console.log(student);
+
+      const { nome, historico } = student;
+
+      const aggregatedResults = {
+        name: nome,
+        num_studied: 0,
+        num_studying: 0,
+        num_missing_mandatory: 0,
+        num_missing_elective: 0,
+      };
+
+      for (const h of historico) {
+        switch (h.status) {
+          case 1:
+          case 2:
+            aggregatedResults.num_studied++;
+            break;
+          case 5:
+            aggregatedResults.num_studying++;
+            break;
+          case 0:
+          case 3:
+          case 4:
+          case 6:
+          case 7:
+            aggregatedResults.num_missing_mandatory +=
+              h.disciplina.tipo === 1 ? 1 : 0;
+            aggregatedResults.num_missing_elective +=
+              h.disciplina.tipo === 2 ? 1 : 0;
+            break;
+        }
+      }
+
+      return aggregatedResults;
+    });
+
+    return results;
   }
 }

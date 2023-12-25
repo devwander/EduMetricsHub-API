@@ -42,8 +42,8 @@ export class UniversityController {
   }
 
   @Get('/students')
-  students() {
-    return this.universityService.students();
+  students(@Query('take') take?: number, @Query('skip') skip?: number) {
+    return this.universityService.students(take, skip);
   }
 
   @Get('/student/:id')
@@ -52,17 +52,20 @@ export class UniversityController {
   }
 
   @Get('/student/data/failures')
-  studentFailures() {
-    return this.universityService.studentFailures();
+  studentFailures(@Query('take') take?: number, @Query('skip') skip?: number) {
+    return this.universityService.studentFailures(take, skip);
   }
 
   @Get('/student/data/progress/:id')
   studentDiscipline(@Param('id') id: number) {
-    return this.universityService.studentProgress(id);
+    return this.universityService.studentProgressById(id);
   }
 
   @Get('/student/data/progress')
-  studentDisciplineAll() {
-    return this.universityService.studentProgressAll();
+  studentDisciplineAll(
+    @Query('take') take?: number,
+    @Query('skip') skip?: number,
+  ) {
+    return this.universityService.studentProgressAll(take, skip);
   }
 }
