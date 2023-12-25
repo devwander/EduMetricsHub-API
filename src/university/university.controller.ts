@@ -38,7 +38,7 @@ export class UniversityController {
 
   @Get('/discipline/data/progress/:id')
   disciplineProgress(@Param('id') id: number) {
-    return this.universityService.disciplineProgress(id);
+    return this.universityService.disciplineProgressById(id);
   }
 
   @Get('/students')
