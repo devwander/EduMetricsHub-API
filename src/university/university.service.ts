@@ -9,6 +9,10 @@ export class UniversityService {
     return { message: 'Teste de login!' };
   }
 
+  async disciplines() {
+    return await this.prisma.disciplina.findMany();
+  }
+
   async disciplineFailures() {
     return await this.prisma.$queryRaw`
     SELECT
@@ -77,6 +81,10 @@ export class UniversityService {
       disciplina d ON h.id_disciplina = d.id
     GROUP BY d.nome;
 `;
+  }
+
+  async students() {
+    return await this.prisma.aluno.findMany();
   }
 
   async studentProgress(id: number) {
