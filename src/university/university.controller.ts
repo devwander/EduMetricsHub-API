@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { UniversityService } from './university.service';
 
 @Controller('university')
@@ -11,8 +11,8 @@ export class UniversityController {
   }
 
   @Get('/disciplines')
-  disciplines() {
-    return this.universityService.disciplines();
+  disciplines(@Query('take') take?: number, @Query('skip') skip?: number) {
+    return this.universityService.disciplines(take, skip);
   }
 
   @Get('/discipline/:id')
@@ -21,13 +21,19 @@ export class UniversityController {
   }
 
   @Get('/discipline/data/failures')
-  disciplineFailures() {
-    return this.universityService.disciplineFailures();
+  disciplineFailures(
+    @Query('take') take?: number,
+    @Query('skip') skip?: number,
+  ) {
+    return this.universityService.disciplineFailures(take, skip);
   }
 
   @Get('/discipline/data/progress')
-  disciplineProgressAll() {
-    return this.universityService.disciplineProgressAll();
+  disciplineProgressAll(
+    @Query('take') take?: number,
+    @Query('skip') skip?: number,
+  ) {
+    return this.universityService.disciplineProgressAll(take, skip);
   }
 
   @Get('/discipline/data/progress/:id')
