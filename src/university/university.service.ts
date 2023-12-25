@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { MIN_TAKE_RESULTS } from 'src/utils/constants';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -11,7 +12,7 @@ export class UniversityService {
 
   async disciplines(take: number, skip: number) {
     return await this.prisma.disciplina.findMany({
-      take: take || 10,
+      take: take || MIN_TAKE_RESULTS,
       skip: skip || 0,
       orderBy: {
         nome: 'asc',
@@ -29,7 +30,7 @@ export class UniversityService {
           },
         },
       },
-      take: take || 10,
+      take: take || MIN_TAKE_RESULTS,
       skip: skip || 0,
       orderBy: {
         nome: 'asc',
@@ -114,7 +115,7 @@ export class UniversityService {
           },
         },
       },
-      take: take || 10,
+      take: take || MIN_TAKE_RESULTS,
       skip: skip || 0,
       orderBy: {
         nome: 'asc',
@@ -162,7 +163,7 @@ export class UniversityService {
 
   async students(take: number, skip: number) {
     return await this.prisma.aluno.findMany({
-      take: take || 10,
+      take: take || MIN_TAKE_RESULTS,
       skip: skip || 0,
       orderBy: {
         nome: 'asc',
@@ -180,7 +181,7 @@ export class UniversityService {
           },
         },
       },
-      take: take || 10,
+      take: take || MIN_TAKE_RESULTS,
       skip: skip || 0,
       orderBy: {
         nome: 'asc',
@@ -273,7 +274,7 @@ export class UniversityService {
           },
         },
       },
-      take: take || 10,
+      take: take || MIN_TAKE_RESULTS,
       skip: skip || 0,
       orderBy: {
         nome: 'asc',
