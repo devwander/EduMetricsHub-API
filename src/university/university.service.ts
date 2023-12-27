@@ -281,9 +281,7 @@ export class UniversityService {
       },
     });
 
-
     const results = students.map((student) => {
-
       const { nome, historico } = student;
 
       const aggregatedResults = {
@@ -319,10 +317,7 @@ export class UniversityService {
       return aggregatedResults;
     });
 
-
     return results;
-
-
   }
 
   async studentAllElective(id: number) {
@@ -340,7 +335,7 @@ export class UniversityService {
       AND h.status IN (1, 2)
       AND a.id = ${id}
     GROUP BY a.id;
-;`
+;`;
   }
 
   async studentBlocked() {
@@ -358,6 +353,6 @@ export class UniversityService {
         WHERE h.id_aluno = a.id
           AND h.status IN (3, 4)
     );
-;`
+;`;
   }
 }
