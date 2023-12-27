@@ -161,6 +161,28 @@ export class UniversityService {
     return results;
   }
 
+  async disciplineOffer(id: number) {
+    return await this.prisma.$queryRaw`
+    SELECT DISTINCT ano, semestre
+    FROM historico
+    WHERE id_disciplina = ${id}
+`;
+  }
+
+  async disciplineDemand() {
+    return await this.prisma.$queryRaw`SELECT disciplina.id, disciplina.nome, (
+      SELECT CAST(COUNT(*) AS INT)
+      FROM aluno
+      WHERE NOT EXISTS (
+        SELECT *
+        FROM historico
+        WHERE historico.id_disciplina = disciplina.id AND
+        historico.id_aluno = aluno.id
+      )) as demanda
+      FROM disciplina
+      ORDER BY demanda DESC;`;
+  }
+
   async students(take: number, skip: number) {
     return await this.prisma.aluno.findMany({
       take: take || MIN_TAKE_RESULTS,
@@ -356,7 +378,7 @@ export class UniversityService {
 ;`;
   }
 
-  async reprovedMore(take: string, skip: number) {
+  async reprovedMore(code: string, count: number) {
     return await this.prisma.$queryRaw`
     SELECT
       a.id AS id_aluno,
@@ -367,11 +389,37 @@ export class UniversityService {
       JOIN historico h ON a.id = h.id_aluno
       JOIN disciplina d ON h.id_disciplina = d.id
     WHERE
-      d.codigo = '${take}'
+      d.codigo = '${code}'
       AND h.status IN (3, 4)
     GROUP BY
       a.id, a.nome
     HAVING
-      COUNT(*) >= ${skip};`;
+      COUNT(*) >= ${count};`;
+  }
+
+  async studentHistoric(id: number) {
+    return await this.prisma.$queryRaw`
+    SELECT
+      disciplina.id as id_disciplina,
+      disciplina.nome,
+      historico.ano,
+      historico.semestre,
+      historico.status,
+      historico.nota
+    FROM 
+      historico JOIN disciplina on historico.id_disciplina = disciplina.id
+    WHERE
+      historico.id_aluno = ${id};`;
+  }
+
+  async studentHoursPerSemester(id: number) {
+    return await this.prisma.$queryRaw`
+    SELECT 
+      historico.ano,
+      historico.semestre,
+      CAST((SUM(disciplina.carga_horaria)) as INT) as horas_cursadas
+    FROM historico JOIN disciplina on historico.id_disciplina = disciplina.id
+    WHERE historico.id_aluno = ${id}
+    GROUP BY historico.ano, historico.semestre`;
   }
 }
