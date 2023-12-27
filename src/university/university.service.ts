@@ -281,10 +281,8 @@ export class UniversityService {
       },
     });
 
-    console.log(students);
 
     const results = students.map((student) => {
-      console.log(student);
 
       const { nome, historico } = student;
 
@@ -321,6 +319,45 @@ export class UniversityService {
       return aggregatedResults;
     });
 
+
     return results;
+
+
+  }
+
+  async studentAllElective(id: number) {
+    return await this.prisma.$queryRaw`
+    SELECT
+      a.id AS id_aluno,
+      a.nome AS nome_aluno,
+      COUNT(*) AS quantidade_disciplinas_eletivas_passadas
+    FROM
+      aluno a
+      JOIN historico h ON a.id = h.id_aluno
+      JOIN disciplina d ON h.id_disciplina = d.id
+    WHERE
+      d.tipo = 2
+      AND h.status IN (1, 2)
+      AND a.id = ${id}
+    GROUP BY a.id;
+;`
+  }
+
+  async studentBlocked() {
+    return await this.prisma.$queryRaw`
+    SELECT
+      a.id AS id_aluno,
+      a.nome AS nome_aluno
+    FROM
+      aluno a
+    WHERE
+    NOT EXISTS (
+        SELECT 1
+        FROM historico h
+        JOIN disciplina d ON h.id_disciplina = d.id
+        WHERE h.id_aluno = a.id
+          AND h.status IN (3, 4)
+    );
+;`
   }
 }

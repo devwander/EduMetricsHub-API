@@ -68,4 +68,14 @@ export class UniversityController {
   ) {
     return this.universityService.studentProgressAll(take, skip);
   }
+
+  @Get('/student/elective/:id')
+  studentAllElective(@Param('id') id: number) {
+    return this.universityService.studentAllElective(id);
+  }
+
+  @Get('/student/blocked')
+  studentBlocked() {
+    return this.universityService.studentBlocked();
+  }
 }
