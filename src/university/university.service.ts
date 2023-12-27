@@ -355,4 +355,23 @@ export class UniversityService {
     );
 ;`;
   }
+
+  async reprovedMore(take: string, skip: number) {
+    return await this.prisma.$queryRaw`
+    SELECT
+      a.id AS id_aluno,
+      a.nome AS nome_aluno,
+      COUNT(*) AS vezes_reprovado
+    FROM
+      aluno a
+      JOIN historico h ON a.id = h.id_aluno
+      JOIN disciplina d ON h.id_disciplina = d.id
+    WHERE
+      d.codigo = '${take}'
+      AND h.status IN (3, 4)
+    GROUP BY
+      a.id, a.nome
+    HAVING
+      COUNT(*) >= ${skip};`;
+  }
 }

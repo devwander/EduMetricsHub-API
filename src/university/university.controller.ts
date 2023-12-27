@@ -78,4 +78,9 @@ export class UniversityController {
   studentBlocked() {
     return this.universityService.studentBlocked();
   }
+
+  @Get('/student/data/reprovedmore')
+  reprovedMore(@Query('take') take?: string, @Query('skip') skip?: number) {
+    return this.universityService.reprovedMore(take, skip);
+  }
 }
