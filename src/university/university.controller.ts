@@ -13,8 +13,17 @@ export class UniversityController {
   // Wanderson
   // Retorna todas as disciplinas
   @Get('/disciplines')
-  disciplines(@Query('take') take?: number, @Query('skip') skip?: number) {
-    return this.universityService.disciplines(take, skip);
+  disciplines(
+    @Query('page') page?: number,
+    @Query('perPage') perPage?: number,
+  ) {
+    return this.universityService.disciplines({
+      page: page,
+      perPage: perPage,
+      orderBy: {
+        nome: 'asc',
+      },
+    });
   }
 
   // Wanderson

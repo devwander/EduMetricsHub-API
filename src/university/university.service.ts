@@ -1,6 +1,33 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { MIN_TAKE_RESULTS } from 'src/utils/constants';
 import { PrismaService } from '../prisma/prisma.service';
+import { Disciplina } from './entities/disciplina.entity';
+import { paginator } from './paginator';
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    lastPage: number;
+    currentPage: number;
+    perPage: number;
+    prev: number | null;
+    next: number | null;
+  };
+}
+
+export type PaginateOptions = {
+  page?: number | string;
+  perPage?: number | string;
+};
+export type PaginateFunction = <T, K>(
+  model: any,
+  args?: K,
+  options?: PaginateOptions,
+) => Promise<PaginatedResult<T>>;
+
+const paginate: PaginateFunction = paginator({ perPage: 10 });
 
 @Injectable()
 export class UniversityService {
@@ -10,14 +37,28 @@ export class UniversityService {
     return { message: 'hello, you are logged!' };
   }
 
-  async disciplines(take: number, skip: number) {
-    return await this.prisma.disciplina.findMany({
-      take: take || MIN_TAKE_RESULTS,
-      skip: skip || 0,
-      orderBy: {
-        nome: 'asc',
+  async disciplines({
+    where,
+    orderBy,
+    page,
+    perPage,
+  }: {
+    where?: Prisma.disciplinaWhereInput;
+    orderBy?: Prisma.disciplinaOrderByWithRelationInput;
+    page?: number;
+    perPage?: number;
+  }): Promise<PaginatedResult<Disciplina>> {
+    return paginate(
+      this.prisma.disciplina,
+      {
+        where,
+        orderBy,
       },
-    });
+      {
+        page,
+        perPage,
+      },
+    );
   }
 
   async disciplineFailures(take: number, skip: number) {
