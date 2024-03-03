@@ -225,6 +225,21 @@ export class UniversityService {
       ORDER BY demanda DESC;`;
   }
 
+  async disciplineDemandById(id: number) {
+    return await this.prisma.$queryRaw`SELECT disciplina.id, disciplina.nome, (
+      SELECT CAST(COUNT(*) AS INT)
+      FROM aluno
+      WHERE NOT EXISTS (
+        SELECT *
+        FROM historico
+        WHERE historico.id_disciplina = disciplina.id AND
+        historico.id_aluno = aluno.id
+      )) as demanda
+      FROM disciplina
+      WHERE id = ${id}
+      ORDER BY demanda DESC;`;
+  }
+
   async students(take: number, skip: number) {
     return await this.prisma.aluno.findMany({
       take: take || MIN_TAKE_RESULTS,

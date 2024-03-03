@@ -82,6 +82,11 @@ export class UniversityController {
     return this.universityService.disciplineDemand();
   }
 
+  @Get('/discipline/data/demand/:id')
+  disciplineDemandById(@Param('id') id: number) {
+    return this.universityService.disciplineDemandById(id);
+  }
+
   // Wanderson
   // retona todos os estudantes
   @Get('/students')
