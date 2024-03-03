@@ -48,6 +48,7 @@ export class UniversityService {
     page?: number;
     perPage?: number;
   }): Promise<PaginatedResult<Disciplina>> {
+    console.log(where);
     return paginate(
       this.prisma.disciplina,
       {

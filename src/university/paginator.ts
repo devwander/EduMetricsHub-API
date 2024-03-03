@@ -23,7 +23,11 @@ export type PaginateFunction = <T, K>(
 export const paginator = (
   defaultOptions: PaginateOptions,
 ): PaginateFunction => {
-  return async (model, args: any = { where: undefined }, options) => {
+  return async (
+    model,
+    args: any = { where: undefined, search: undefined },
+    options,
+  ) => {
     const page = Number(options?.page || defaultOptions?.page) || 1;
     const perPage = Number(options?.perPage || defaultOptions?.perPage) || 10;
 
