@@ -208,6 +208,7 @@ export class UniversityService {
     SELECT DISTINCT ano, semestre
     FROM historico
     WHERE id_disciplina = ${id}
+    ORDER BY ano, semestre
 `;
   }
 
