@@ -90,8 +90,23 @@ export class UniversityController {
   // Wanderson
   // retona todos os estudantes
   @Get('/students')
-  students(@Query('take') take?: number, @Query('skip') skip?: number) {
-    return this.universityService.students(take, skip);
+  students(
+    @Query('page') page?: number,
+    @Query('perPage') perPage?: number,
+    @Query('search') search?: string,
+  ) {
+    return this.universityService.students({
+      page: page,
+      perPage: perPage,
+      orderBy: {
+        nome: 'asc',
+      },
+      where: {
+        nome: {
+          contains: search,
+        },
+      },
+    });
   }
 
   // Wanderson

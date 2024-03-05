@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { MIN_TAKE_RESULTS } from 'src/utils/constants';
 import { PrismaService } from '../prisma/prisma.service';
+import { Aluno } from './entities/aluno.entity';
 import { Disciplina } from './entities/disciplina.entity';
 import { paginator } from './paginator';
 
@@ -48,7 +49,6 @@ export class UniversityService {
     page?: number;
     perPage?: number;
   }): Promise<PaginatedResult<Disciplina>> {
-    console.log(where);
     return paginate(
       this.prisma.disciplina,
       {
@@ -241,14 +241,28 @@ export class UniversityService {
       ORDER BY demanda DESC;`;
   }
 
-  async students(take: number, skip: number) {
-    return await this.prisma.aluno.findMany({
-      take: take || MIN_TAKE_RESULTS,
-      skip: skip || 0,
-      orderBy: {
-        nome: 'asc',
+  async students({
+    where,
+    orderBy,
+    page,
+    perPage,
+  }: {
+    where?: Prisma.alunoWhereInput;
+    orderBy?: Prisma.alunoOrderByWithRelationInput;
+    page?: number;
+    perPage?: number;
+  }): Promise<PaginatedResult<Aluno>> {
+    return paginate(
+      this.prisma.aluno,
+      {
+        where,
+        orderBy,
       },
-    });
+      {
+        page,
+        perPage,
+      },
+    );
   }
 
   async studentFailures(take: number, skip: number) {
