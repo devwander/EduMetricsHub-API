@@ -5,7 +5,31 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './entities/user.entity';
 import { existingUserError } from './errors/existingUser.error';
+import { paginator } from './paginator';
 
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    lastPage: number;
+    currentPage: number;
+    perPage: number;
+    prev: number | null;
+    next: number | null;
+  };
+}
+
+export type PaginateOptions = {
+  page?: number | string;
+  perPage?: number | string;
+};
+export type PaginateFunction = <T, K>(
+  model: any,
+  args?: K,
+  options?: PaginateOptions,
+) => Promise<PaginatedResult<T>>;
+
+const paginate: PaginateFunction = paginator({ perPage: 10 });
 @Injectable()
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
@@ -31,6 +55,30 @@ export class UserService {
 
     throw new existingUserError(
       'The email address provided is already in use.',
+    );
+  }
+
+  async users({
+    where,
+    orderBy,
+    page,
+    perPage,
+  }: {
+    where?: Prisma.UserWhereInput;
+    orderBy?: Prisma.UserOrderByWithRelationInput;
+    page?: number;
+    perPage?: number;
+  }): Promise<PaginatedResult<User>> {
+    return paginate(
+      this.prisma.user,
+      {
+        where,
+        orderBy,
+      },
+      {
+        page,
+        perPage,
+      },
     );
   }
 
